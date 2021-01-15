@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">KaohsiungParking</string>
+    <string name="menu_list_name">清單資料</string>
+    <string name="menu_history_name">歷史紀錄</string>
+    <string name="menu_download_name">下載資料</string>
+    <string name="search_text">在這裡搜尋</string>
+</resources>
