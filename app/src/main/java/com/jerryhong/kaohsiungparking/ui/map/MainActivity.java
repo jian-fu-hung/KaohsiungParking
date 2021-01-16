@@ -8,6 +8,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableSubscriber;
@@ -55,6 +56,7 @@ import com.jerryhong.kaohsiungparking.databinding.ActivityMainBinding;
 import com.jerryhong.kaohsiungparking.ui.download.DownloadActivity;
 import com.jerryhong.kaohsiungparking.ui.list.ListActivity;
 import com.jerryhong.kaohsiungparking.ui.search.SearchActivity;
+import com.jerryhong.kaohsiungparking.util.CommonUnit;
 
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -81,8 +83,6 @@ public class MainActivity extends BaseActivity {
     private List<Address> geocodeAddress;
 
     private LatLng mLatLng;
-
-    private Disposable disposableMarker = new CompositeDisposable();
 
     private final static String[] PERMISSIONS = {
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -142,15 +142,25 @@ public class MainActivity extends BaseActivity {
         viewModel.parkingList.observe(this, new Observer<List<ParkingEntity>>() {
             @Override
             public void onChanged(List<ParkingEntity> parkingEntityList) {
-                if(parkingEntityList != null){
+                if (parkingEntityList != null) {
 
                     addDisposable(Flowable.fromIterable(parkingEntityList).delay(2, TimeUnit.MILLISECONDS)
+                            .map(new Function<ParkingEntity, MarkerOptions>() {
+
+                                @Override
+                                public MarkerOptions apply(@io.reactivex.annotations.NonNull ParkingEntity parkingEntity) throws Exception {
+                                    return new MarkerOptions().position(new LatLng(Double.parseDouble(parkingEntity.Latitude), Double.parseDouble(parkingEntity.Longitude)));
+                                }
+                            })
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribeWith(new DisposableSubscriber<ParkingEntity>(){
+                            .subscribeWith(new DisposableSubscriber<MarkerOptions>() {
                                 @Override
-                                public void onNext(ParkingEntity parkingEntity) {
-                                    mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(parkingEntity.Latitude), Double.parseDouble(parkingEntity.Longitude))));
+                                public void onNext(MarkerOptions markerOptions) {
+                                    if (markerOptions != null) {
+                                        mMap.addMarker(markerOptions);
+                                        Log.d(TAG, "onNext: 1");
+                                    }
                                 }
 
                                 @Override
@@ -163,160 +173,7 @@ public class MainActivity extends BaseActivity {
 
                                 }
                             }));
-
-//                    addDisposable(Observable.fromIterable(parkingEntityList)
-//                            .subscribeOn(Schedulers.io())
-//                            .observeOn(AndroidSchedulers.mainThread())
-//                            .subscribeWith(new ResourceObserver<ParkingEntity>() {
-//                                           @Override
-//                                           public void onNext(ParkingEntity parkingEntity) {
-//                                               mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(parkingEntity.Latitude), Double.parseDouble(parkingEntity.Longitude))));
-//                                           }
-//
-//                                           @Override
-//                                           public void onError(Throwable e) {
-//
-//                                           }
-//
-//                                           @Override
-//                                           public void onComplete() {
-//
-//                                           }
-//                                       }));
-
-//                                    Observable a = Observable.fromIterable(parkingEntityList);
-//                    a.subscribe(new io.reactivex.Observer<ParkingEntity>() {
-//                        @Override
-//                        public void onSubscribe(Disposable d) {
-//
-//                        }
-//
-//                        @Override
-//                        public void onNext(ParkingEntity parkingEntity) {
-//
-//                        }
-//
-//
-//                        @Override
-//                        public void onError(Throwable e) {
-//
-//                        }
-//
-//                        @Override
-//                        public void onComplete() {
-//
-//                        }
-//                    });
-//                    addDisposable(Observable.just(parkingEntityList)
-//                            .toFlowable(BackpressureStrategy.BUFFER)
-//                            .subscribeOn(Schedulers.io())
-//                            .observeOn(AndroidSchedulers.mainThread())
-//                            .flatMap(new Function<List<ParkingEntity>, Publisher<?>>() {
-//                                @Override
-//                                public Publisher<?> apply(List<ParkingEntity> parkingEntityList) throws Exception {
-//                                    return null;
-//                                }
-//                            })
-//                            .map(item -> {
-//                                return mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(item.Latitude), Double.parseDouble(item.Longitude))));
-//                            } );
-
-//                    Flowable<List<ParkingEntity>> test = Flowable.just(parkingEntityList).subscribeOn(new Scheduler() {
-//                    })
-//                    addDisposable(Observable.fromIterable(parkingEntityList)
-//                                .subscribeOn(new DisposableCompletableObserver<List<ParkingEntity>>(){
-//
-//                                    @Override
-//                                    public void onComplete() {
-//
-//                                    }
-//
-//                                    @Override
-//                                    public void onError(Throwable e) {
-//
-//                                    }
-//                                }));
                 }
-//                addDisposable(Observable.fromIterable(parkingEntityList)
-//                            .subscribeOn(Schedulers.io())
-//                            .observeOn(AndroidSchedulers.mainThread())
-//                            .subscribeOn(new Scheduler() {
-//                                @Override
-//                                public Worker createWorker() {
-//                                    return null;
-//                                }
-//                            }new Subscriber<List<ParkingEntity>>(){
-//
-//                                @Override
-//                                public void onSubscribe(Subscription s) {
-//
-//                                }
-//
-//                                @Override
-//                                public void onNext(List<ParkingEntity> parkingEntityList) {
-//
-//                                }
-//
-//                                @Override
-//                                public void onError(Throwable t) {
-//
-//                                }
-//
-//                                @Override
-//                                public void onComplete() {
-//
-//                                }
-//                            }));
-
-//                addDisposable(Flowable.just(parkingEntityList)
-//                        .subscribeOn(Schedulers.computation())
-//                        .observeOn(AndroidSchedulers.mainThread())
-//                        .subscribe(new Subscriber<List<ParkingEntity>>() {
-//                            @Override
-//                            public void onSubscribe(Subscription s) {
-//
-//                            }
-//
-//                            @Override
-//                            public void onNext(List<ParkingEntity> parkingEntityList) {
-//
-//                            }
-//
-//                            @Override
-//                            public void onError(Throwable t) {
-//
-//                            }
-//
-//                            @Override
-//                            public void onComplete() {
-//
-//                            }
-//                        }));
-//                        .subscribe(new Subscriber<ParkingEntity>() {
-//                            @Override
-//                            public void onSubscribe(Subscription s) {
-//                                Log.d(TAG, "onComplete: ");
-//                            }
-//
-//                            @Override
-//                            public void onNext(ParkingEntity parkingEntity) {
-//                                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(parkingEntity.Latitude), Double.parseDouble(parkingEntity.Longitude))));
-//                            }
-//
-//                            @Override
-//                            public void onError(Throwable t) {
-//                                Log.d(TAG, "onComplete: ");
-//                            }
-//
-//                            @Override
-//                            public void onComplete() {
-//                                Log.d(TAG, "onComplete: ");
-//                            }
-//                        }));
-
-//                for(ParkingEntity item : parkingEntityList){
-//                    mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(item.Latitude), Double.parseDouble(item.Longitude))));
-//                }
             }
         });
     }
@@ -337,7 +194,7 @@ public class MainActivity extends BaseActivity {
 
         geocoder = new Geocoder(this, Locale.getDefault());
 
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0,
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0,
                 new LocationListener() {
                     @Override
                     public void onLocationChanged(Location location) {
@@ -369,7 +226,7 @@ public class MainActivity extends BaseActivity {
                     }
                 });
 
-        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (location != null)
             mLatLng = new LatLng(location.getLatitude(), location.getLongitude());
     }
@@ -387,7 +244,7 @@ public class MainActivity extends BaseActivity {
         return true;
     }
 
-    //回傳函式 googlemap建立成功
+    //回傳函式 GoogleMap建立成功
     private OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
         @Override
         public void onMapReady(GoogleMap googleMap) {

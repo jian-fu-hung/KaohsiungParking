@@ -21,6 +21,6 @@ public interface ParkingDAO {
     @Query("SELECT * FROM " + DatabaseInfo.PARKING_TABLE)
     Single<List<ParkingEntity>> selectAll();
 
-    @Query("SELECT * FROM "+ DatabaseInfo.PARKING_TABLE + " LIMIT 10")
+    @Query("SELECT * FROM "+ DatabaseInfo.PARKING_TABLE + " LIMIT 25")
     Single<List<ParkingEntity>> select10();
 }

@@ -18,7 +18,7 @@ public class MainViewModel extends BaseViewModel {
     public MutableLiveData<List<ParkingEntity>> parkingList = new MutableLiveData<>();
 
     public void readDB(){
-        addDisposable(DatabaseManager.getInstance().getParkingDAO().select10()
+        addDisposable(DatabaseManager.getInstance().getParkingDAO().selectAll()
                     .subscribeOn(Schedulers.io())
                     .subscribeWith(new DisposableSingleObserver<List<ParkingEntity>>(){
                         @Override
@@ -28,7 +28,7 @@ public class MainViewModel extends BaseViewModel {
 
                         @Override
                         public void onError(Throwable e) {
-
+                            e.printStackTrace();
                         }
                     }));
     }
