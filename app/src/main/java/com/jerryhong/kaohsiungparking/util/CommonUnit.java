@@ -1,6 +1,6 @@
 package com.jerryhong.kaohsiungparking.util;
 
-public class CommonUnit {
+public final class CommonUnit {
 
     private CommonUnit(){}
 
