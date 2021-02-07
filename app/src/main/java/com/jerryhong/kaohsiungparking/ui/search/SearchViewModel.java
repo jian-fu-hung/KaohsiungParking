@@ -16,16 +16,16 @@ import io.reactivex.schedulers.Schedulers;
 
 public class SearchViewModel extends BaseViewModel {
 
-    private MutableLiveData<List<ParkingEntity>> parkingList = new MutableLiveData<>();
+    public MutableLiveData<List<ParkingEntity>> parkingList = new MutableLiveData<>();
 
-    public void searchParking(String keyword){
+    public void searchParking(String keyword) {
         addDisposable(DatabaseManager.getInstance().getParkingDAO().selectKeyword(keyword)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableSingleObserver<List<ParkingEntity>>(){
+                .subscribeWith(new DisposableSingleObserver<List<ParkingEntity>>() {
                     @Override
                     public void onSuccess(@NonNull List<ParkingEntity> parkingEntities) {
-
+                        parkingList.setValue(parkingEntities);
                     }
 
                     @Override

@@ -24,6 +24,6 @@ public interface ParkingDAO {
     @Query("SELECT * FROM "+ DatabaseInfo.PARKING_TABLE + " LIMIT 25")
     Single<List<ParkingEntity>> select10();
 
-    @Query("Select * FROM " + DatabaseInfo.PARKING_TABLE + " where Name like :keyword")
+    @Query("Select * FROM " + DatabaseInfo.PARKING_TABLE + " where Name LIKE '%' || :keyword || '%' or District LIKE '%' || :keyword || '%' or Address LIKE '%' || :keyword || '%'")
     Single<List<ParkingEntity>> selectKeyword(String keyword);
 }

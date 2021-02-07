@@ -20,4 +20,5 @@ public abstract class BaseActivity extends AppCompatActivity {
         disposable.clear();
         super.onDestroy();
     }
+
 }
