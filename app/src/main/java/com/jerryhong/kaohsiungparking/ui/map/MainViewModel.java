@@ -36,4 +36,9 @@ public class MainViewModel extends BaseViewModel {
     public MutableLiveData<List<ParkingEntity>> getParkingList() {
         return parkingList;
     }
+
+    public int testAdd(int a, int b){
+        return a+b;
+    }
+
 }

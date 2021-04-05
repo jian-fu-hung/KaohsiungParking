@@ -24,9 +24,9 @@ import okhttp3.ResponseBody;
 
 public class DownloadViewModel extends BaseViewModel {
 
-    MutableLiveData<String> toastMessage = new MutableLiveData<>();
+    public MutableLiveData<String> toastMessage = new MutableLiveData<>();
 
-    MutableLiveData<Boolean> isShow = new MutableLiveData<>();
+    public MutableLiveData<Boolean> isShow = new MutableLiveData<>();
 
     public void downloadParkingData(final File file) {
         isShow.setValue(true);
@@ -59,6 +59,9 @@ public class DownloadViewModel extends BaseViewModel {
                             //跳過第一行
                             csvReader.readNext();
                             List<ParkingEntity> entityList = new ArrayList<>();
+                            //刪除全部資料
+                            DatabaseManager.getInstance().getParkingDAO().deleteAll();
+                            //寫入資料
                             while ((nextLine = csvReader.readNext()) != null) {
                                 if (CommonUnit.isString2Double(nextLine[4]) && CommonUnit.isString2Double(nextLine[5])) {
                                     //FIXME:這邊再修改
@@ -66,11 +69,11 @@ public class DownloadViewModel extends BaseViewModel {
                                     DatabaseManager.getInstance().getParkingDAO().insert(entity);
                                 }
                             }
-                            finishMessage = "下載完成";
+                            toastMessage.postValue("下載完成");
 
                         } catch (Exception e) {
                             e.printStackTrace();
-                            finishMessage = "下載失敗";
+                            toastMessage.postValue("下載失敗");
                         }
                         isShow.postValue(false);
 
@@ -78,8 +81,9 @@ public class DownloadViewModel extends BaseViewModel {
 
                     @Override
                     public void onError(Throwable e) {
-                        isShow.postValue(false);
                         e.printStackTrace();
+                        toastMessage.postValue("下載失敗");
+                        isShow.postValue(false);
                     }
                 }));
     }

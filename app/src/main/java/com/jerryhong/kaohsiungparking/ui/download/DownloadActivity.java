@@ -7,58 +7,50 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.jerryhong.kaohsiungparking.R;
 import com.jerryhong.kaohsiungparking.base.BaseActivity;
 import com.jerryhong.kaohsiungparking.data.DatabaseManager;
+import com.jerryhong.kaohsiungparking.databinding.ActivityDownloadBinding;
 
 import java.io.File;
 
 public class DownloadActivity extends BaseActivity {
 
-    private DownloadViewModel viewModel = new DownloadViewModel();
+    private DownloadViewModel viewModel;
 
-    File futureStudioIconFile ;
+    private ActivityDownloadBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_download);
+        binding = DataBindingUtil.setContentView(DownloadActivity.this, R.layout.activity_download);
+        viewModel = ViewModelProviders.of(DownloadActivity.this).get(DownloadViewModel.class);
+        binding.setDownloadViewModel(viewModel);
+
         DatabaseManager.getInstance().initDatabase(getApplicationContext());
 
         //FIXME: 之後改成xml裡面加上ViewModel
-        Button btnDownload = findViewById(R.id.btn_download);
-        ProgressBar progressBar = findViewById(R.id.progressBar);
-        btnDownload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                futureStudioIconFile = new File(getExternalFilesDir(null) + "test.csv");
-                if(futureStudioIconFile.exists()){
-                    boolean delete = futureStudioIconFile.delete();
-                }
-                viewModel.downloadParkingData(futureStudioIconFile);
+        binding.btnDownload.setOnClickListener(view -> {
+            File futureStudioIconFile = new File(DownloadActivity.this.getExternalFilesDir(null) + "test.csv");
+            if (futureStudioIconFile.exists()) {
+                //刪除檔案
+                futureStudioIconFile.delete();
             }
+            viewModel.downloadParkingData(futureStudioIconFile);
         });
 
-        viewModel.toastMessage.observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                if(!TextUtils.isEmpty(s)){
-                    Toast.makeText(DownloadActivity.this, s, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        // TODO: HF 2021/4/5 有空研究一下 this::errorMessage為何可以這樣寫
+        viewModel.toastMessage.observe(this, this::errorMessage);
 
-        viewModel.isShow.observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                if(aBoolean){
-                    progressBar.setVisibility(View.VISIBLE);
-                }
-                else{
-                    progressBar.setVisibility(View.INVISIBLE);
-                }
+        viewModel.isShow.observe(this, aBoolean -> {
+            if (aBoolean) {
+                binding.progressBar.setVisibility(View.VISIBLE);
+            } else {
+                binding.progressBar.setVisibility(View.INVISIBLE);
             }
         });
     }

@@ -26,4 +26,7 @@ public interface ParkingDAO {
 
     @Query("Select * FROM " + DatabaseInfo.PARKING_TABLE + " where Name LIKE '%' || :keyword || '%' or District LIKE '%' || :keyword || '%' or Address LIKE '%' || :keyword || '%'")
     Single<List<ParkingEntity>> selectKeyword(String keyword);
+
+    @Query("DELETE FROM " + DatabaseInfo.PARKING_TABLE)
+    void deleteAll();
 }

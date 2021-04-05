@@ -1,5 +1,8 @@
 package com.jerryhong.kaohsiungparking.ui.search;
 
+import android.content.ContextWrapper;
+
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 
 import com.jerryhong.kaohsiungparking.base.BaseViewModel;
