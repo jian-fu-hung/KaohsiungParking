@@ -88,6 +88,8 @@ public class MainActivity extends BaseActivity {
 
     private LatLng mLatLng;
 
+    private MarkerCacheManager cacheManager;
+
     private final static String[] PERMISSIONS = {
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
             android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -101,6 +103,8 @@ public class MainActivity extends BaseActivity {
         viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
         DatabaseManager.getInstance().initDatabase(getApplicationContext());
+
+        cacheManager = new MarkerCacheManager();
 
         createLocationManager();
         createMap();
@@ -162,7 +166,14 @@ public class MainActivity extends BaseActivity {
 
                                 @Override
                                 public MarkerOptions apply(@io.reactivex.annotations.NonNull ParkingEntity parkingEntity) throws Exception {
-                                    return new MarkerOptions().position(new LatLng(Double.parseDouble(parkingEntity.Latitude), Double.parseDouble(parkingEntity.Longitude)));
+//                                    MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(Double.parseDouble(parkingEntity.Latitude), Double.parseDouble(parkingEntity.Longitude)));
+                                    cacheManager.add(""+parkingEntity.ID, parkingEntity);
+
+                                    return new MarkerOptions()
+                                            .position(new LatLng(Double.parseDouble(parkingEntity.Latitude), Double.parseDouble(parkingEntity.Longitude)))
+                                            .title(parkingEntity.Name)
+                                            .snippet(""+parkingEntity.ID);
+
                                 }
                             })
                             .subscribeOn(Schedulers.io())
@@ -281,8 +292,22 @@ public class MainActivity extends BaseActivity {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLatLng, 15));
             }
 
+            mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(MainActivity.this, cacheManager));
+
+            mMap.setOnMarkerClickListener(onMarkerClickListener);
+
             viewModel.readDB();
         }
+    };
+
+    private GoogleMap.OnMarkerClickListener onMarkerClickListener = marker -> {
+
+
+
+        LatLng latLng = marker.getPosition();
+        marker.showInfoWindow();
+//        errorMessage("" + latLng.latitude + latLng.longitude);
+        return false;
     };
 
 
