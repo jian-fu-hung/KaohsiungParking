@@ -18,6 +18,9 @@ public interface ParkingDAO {
     @Insert
     void insert(ParkingEntity parkingEntity);
 
+    @Query("Select * From " + DatabaseInfo.PARKING_TABLE + " where ID = :ID")
+    Single<ParkingEntity> selectByID(int ID);
+
     @Query("SELECT * FROM " + DatabaseInfo.PARKING_TABLE)
     Single<List<ParkingEntity>> selectAll();
 

@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
@@ -57,6 +58,8 @@ import com.jerryhong.kaohsiungparking.data.DatabaseManager;
 import com.jerryhong.kaohsiungparking.data.repository.model.ParkingEntity;
 import com.jerryhong.kaohsiungparking.databinding.ActivityMainBinding;
 import com.jerryhong.kaohsiungparking.ui.download.DownloadActivity;
+import com.jerryhong.kaohsiungparking.ui.info.InfoActivity;
+import com.jerryhong.kaohsiungparking.ui.info.InfoViewModel;
 import com.jerryhong.kaohsiungparking.ui.list.ListActivity;
 import com.jerryhong.kaohsiungparking.ui.search.SearchActivity;
 import com.jerryhong.kaohsiungparking.util.CommonUnit;
@@ -232,6 +235,8 @@ public class MainActivity extends BaseActivity {
 
             geocoder = new Geocoder(this, Locale.getDefault());
 
+            Criteria criteria = new Criteria();
+
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0,
                     new LocationListener() {
                         @Override
@@ -264,7 +269,7 @@ public class MainActivity extends BaseActivity {
                         }
                     });
 
-            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
             if (location != null)
                 mLatLng = new LatLng(location.getLatitude(), location.getLongitude());
         }
@@ -275,7 +280,7 @@ public class MainActivity extends BaseActivity {
             //設定顯示目前位置
             mMap.setMyLocationEnabled(true);
             //把定位的button隱藏起來
-            mMap.setMyLocationEnabled(true);
+            mMap.setMyLocationEnabled(false);
         }
     }
 
@@ -289,7 +294,9 @@ public class MainActivity extends BaseActivity {
 
             //如果有開權限的話
             if (PermissionUtils.checkPermission(MainActivity.this, PERMISSIONS)) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLatLng, 15));
+                if(mLatLng != null ){
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLatLng, 15));
+                }
             }
 
             mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(MainActivity.this, cacheManager));
@@ -303,9 +310,11 @@ public class MainActivity extends BaseActivity {
     private GoogleMap.OnMarkerClickListener onMarkerClickListener = marker -> {
 
 
-
-        LatLng latLng = marker.getPosition();
-        marker.showInfoWindow();
+        Intent intent = new Intent(MainActivity.this, InfoActivity.class);
+        intent.putExtra("ID", Integer.valueOf(marker.getSnippet()));
+        startActivity(intent);
+//        LatLng latLng = marker.getPosition();
+//        marker.showInfoWindow();
 //        errorMessage("" + latLng.latitude + latLng.longitude);
         return false;
     };
