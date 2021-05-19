@@ -299,8 +299,7 @@ public class MainActivity extends BaseActivity {
                 }
             }
 
-            mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(MainActivity.this, cacheManager));
-
+//            mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(MainActivity.this, cacheManager));
             mMap.setOnMarkerClickListener(onMarkerClickListener);
 
             viewModel.readDB();
@@ -309,6 +308,7 @@ public class MainActivity extends BaseActivity {
 
     private GoogleMap.OnMarkerClickListener onMarkerClickListener = marker -> {
 
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
 
         Intent intent = new Intent(MainActivity.this, InfoActivity.class);
         intent.putExtra("ID", Integer.valueOf(marker.getSnippet()));
@@ -316,7 +316,8 @@ public class MainActivity extends BaseActivity {
 //        LatLng latLng = marker.getPosition();
 //        marker.showInfoWindow();
 //        errorMessage("" + latLng.latitude + latLng.longitude);
-        return false;
+        //設為true 就不會開啟 windowsInfo
+        return true;
     };
 
 

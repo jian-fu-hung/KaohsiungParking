@@ -8,14 +8,19 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.jerryhong.kaohsiungparking.R;
 import com.jerryhong.kaohsiungparking.base.BaseActivity;
 import com.jerryhong.kaohsiungparking.data.repository.model.ParkingEntity;
 import com.jerryhong.kaohsiungparking.databinding.ActivitySearchBinding;
+import com.jerryhong.kaohsiungparking.ui.info.InfoActivity;
+import com.jerryhong.kaohsiungparking.ui.map.MainActivity;
 
 import java.util.List;
 
@@ -47,6 +52,11 @@ public class SearchActivity extends BaseActivity {
         });
 
         binding.imageSearch.setOnClickListener(v -> {
+            String searchText = binding.editSearch.getText().toString();
+            if(TextUtils.isEmpty(searchText)){
+                Toast.makeText(this, "請輸入地點", Toast.LENGTH_SHORT).show();
+                return;
+            }
             viewModel.searchParking(binding.editSearch.getText().toString());
         });
 
@@ -65,10 +75,20 @@ public class SearchActivity extends BaseActivity {
     private void initList() {
         binding.rvParkingList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new SearchAdapter();
+        adapter.setListener(onRecyclerViewClickListener);
         binding.rvParkingList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         binding.rvParkingList.setAdapter(adapter);
 
     }
+
+    private SearchAdapter.OnRecyclerViewClickListener onRecyclerViewClickListener = new SearchAdapter.OnRecyclerViewClickListener() {
+        @Override
+        public void onItemClick(int id) {
+            Intent intent = new Intent(SearchActivity.this, InfoActivity.class);
+            intent.putExtra("ID", id);
+            startActivity(intent);
+        }
+    };
 
 
 }

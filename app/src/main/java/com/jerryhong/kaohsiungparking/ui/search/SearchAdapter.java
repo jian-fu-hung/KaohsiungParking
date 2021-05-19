@@ -17,7 +17,9 @@ import java.util.List;
 
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchViewHolder> {
 
-    List<ParkingEntity> list = new ArrayList<>();
+    private List<ParkingEntity> list = new ArrayList<>();
+
+    private OnRecyclerViewClickListener listener;
 
     @NonNull
     @Override
@@ -33,7 +35,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
         ParkingEntity parkingEntity = list.get(position);
         holder.binding.tvName.setText(parkingEntity.Name);
         holder.binding.tvAddress.setText(parkingEntity.Address);
-
+        holder.binding.getRoot().setOnClickListener(v -> {
+            if(listener != null){
+                listener.onItemClick(parkingEntity.ID);
+            }
+        });
     }
 
     @Override
@@ -45,6 +51,10 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
         this.list = list;
     }
 
+    public void setListener(OnRecyclerViewClickListener listener) {
+        this.listener = listener;
+    }
+
     public static class SearchViewHolder extends RecyclerView.ViewHolder{
 
         private SearchItemBinding binding;
@@ -53,5 +63,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
             super(binding.getRoot());
             this.binding = binding;
         }
+    }
+
+    public interface OnRecyclerViewClickListener{
+        void onItemClick(int id);
     }
 }
